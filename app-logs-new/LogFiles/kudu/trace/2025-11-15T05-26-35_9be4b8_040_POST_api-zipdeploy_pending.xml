@@ -1,0 +1,17 @@
+<step title="Incoming Request" date="2025-11-15T05:26:35.501" instance="9be4b8" url="/api/zipdeploy?isAsync=true" method="POST" type="request" pid="831,1,38" Accept="*/*" Host="legal-mcp.scm.azurewebsites.net" User-Agent="AZURECLI/2.79.0 (HOMEBREW)" Accept-Encoding="gzip, deflate" Authorization="Bea..." Cache-Control="no-cache" Content-Type="application/octet-stream" Content-Length="37571550" x-ms-client-request-id="a337c07c-c1e3-11f0-a584-9ef6fe7c72e9" x-ms-artifact-checksum="016ff4ebeb797b69c9711422a88486efbb4c74772fb3f86e0d25364eafd2ed18" X-ARR-LOG-ID="a337c07c-c1e3-11f0-a584-9ef6fe7c72e9" CLIENT-IP="24.25.210.203:54567" X-SITE-DEPLOYMENT-ID="legal-mcp" WAS-DEFAULT-HOSTNAME="legal-mcp.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/zipdeploy?isAsync=true" X-Client-IP="24.25.210.203" X-Client-Port="54567" >
+  <step title="Cleanup Xml Logs" date="2025-11-15T05:26:35.523" /><!-- duration: 12ms -->
+  <step title="ZipPushDeploy" date="2025-11-15T05:26:35.866" >
+    <step title="ZipDeploy. Extract zip." date="2025-11-15T05:26:35.902" /><!-- duration: 6ms -->
+    <step title="Starting PushDeployAsync" date="2025-11-15T05:26:35.922" /><!-- duration: 5ms -->
+    <step title="Removing node_modules symlink" date="2025-11-15T05:26:35.958" >
+      <step title="Writing artifact to /tmp/zipdeploy/23d65fb2-5410-4d9d-9f4e-74f87ddbe8e7.zip" date="2025-11-15T05:26:36.310" >
+        <step title="Writing multipart request body to /tmp/zipdeploy/23d65fb2-5410-4d9d-9f4e-74f87ddbe8e7.zip" date="2025-11-15T05:26:36.317" /><!-- duration: 11ms -->
+      </step><!-- duration: 15017ms -->
+      <step title="Removing previous build artifact&apos;s manifest file" date="2025-11-15T05:26:51.371" >
+        <step title="Start deployment in the background" date="2025-11-15T05:26:51.416" >
+          <step title="Acquiring Deployment Lock" date="2025-11-15T05:26:51.704" /><!-- duration: 6ms -->
+          <step title="Acquired Deployment Lock" date="2025-11-15T05:26:51.802" /><!-- duration: 13ms -->
+        </step><!-- duration: 539ms -->
+      </step><!-- duration: 625ms -->
+      <step title="Outgoing response" date="2025-11-15T05:26:52.020" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 6ms -->
+    </step><!-- duration: 16075ms -->

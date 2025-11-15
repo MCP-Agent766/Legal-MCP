@@ -19,85 +19,113 @@ export class ClaudeClient {
 
   async executePromptWithStreaming(
     promptText: string,
-    documentBase64: string,
+    documentText: string,
     onProgress: (event: StreamEvent) => void
   ): Promise<string> {
-    onProgress({ type: 'analysis_started', message: 'Starting analysis...' });
+    try {
+      console.log('ClaudeClient.executePromptWithStreaming: Starting, document length:', documentText.length, 'prompt length:', promptText.length);
+      onProgress({ type: 'analysis_started', message: 'Starting analysis...' });
 
-    const stream = await this.anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 8000,
-      stream: true,
-      messages: [
-        {
-          role: 'user',
-          content: [
+      // Create the API request
+      console.log('ClaudeClient.executePromptWithStreaming: Creating Claude API request...');
+      let stream;
+      try {
+        stream = await this.anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 8000,
+          stream: true,
+          messages: [
             {
-              type: 'document',
-              source: {
-                type: 'base64',
-                media_type: 'application/pdf',
-                data: documentBase64
-              }
-            },
-            {
-              type: 'text',
-              text: promptText
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: `Document:\n${documentText}`
+                },
+                {
+                  type: 'text',
+                  text: promptText
+                }
+              ]
             }
           ]
-        }
-      ]
-    });
-
-    let fullResponse = '';
-    let currentSection = '';
-
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-        const chunk: string = event.delta.text;
-        fullResponse += chunk;
-
-        const normalized = chunk.toUpperCase();
-        if (normalized.includes('EXECUTIVE SUMMARY')) {
-          currentSection = 'Executive Summary';
-          onProgress({
-            type: 'section_started',
-            section: currentSection,
-            message: 'Analyzing executive summary...'
-          });
-        } else if (normalized.includes('DETAILED ANALYSIS')) {
-          currentSection = 'Detailed Analysis';
-          onProgress({
-            type: 'section_started',
-            section: currentSection,
-            message: 'Performing detailed analysis...'
-          });
-        } else if (normalized.includes('RISK ASSESSMENT')) {
-          currentSection = 'Risk Assessment';
-          onProgress({
-            type: 'section_started',
-            section: currentSection,
-            message: 'Assessing risks...'
-          });
-        } else if (normalized.includes('RECOMMENDATIONS')) {
-          currentSection = 'Recommendations';
-          onProgress({
-            type: 'section_started',
-            section: currentSection,
-            message: 'Generating recommendations...'
-          });
-        }
-
-        onProgress({
-          type: 'content_chunk',
-          chunk,
-          section: currentSection
         });
+        console.log('ClaudeClient.executePromptWithStreaming: Stream created successfully');
+      } catch (error) {
+        const errorMsg = `Failed to create Claude API stream: ${error instanceof Error ? error.message : String(error)}`;
+        console.error('ClaudeClient.executePromptWithStreaming:', errorMsg, error);
+        throw new Error(errorMsg);
       }
-    }
 
-    onProgress({ type: 'analysis_complete', message: 'Analysis complete' });
-    return fullResponse;
+      let fullResponse = '';
+      let currentSection = '';
+      let chunkCount = 0;
+
+      // Process the stream
+      console.log('ClaudeClient.executePromptWithStreaming: Processing stream...');
+      try {
+        for await (const event of stream) {
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            const chunk: string = event.delta.text;
+            fullResponse += chunk;
+            chunkCount++;
+
+            const normalized = chunk.toUpperCase();
+            if (normalized.includes('EXECUTIVE SUMMARY')) {
+              currentSection = 'Executive Summary';
+              onProgress({
+                type: 'section_started',
+                section: currentSection,
+                message: 'Analyzing executive summary...'
+              });
+            } else if (normalized.includes('DETAILED ANALYSIS')) {
+              currentSection = 'Detailed Analysis';
+              onProgress({
+                type: 'section_started',
+                section: currentSection,
+                message: 'Performing detailed analysis...'
+              });
+            } else if (normalized.includes('RISK ASSESSMENT')) {
+              currentSection = 'Risk Assessment';
+              onProgress({
+                type: 'section_started',
+                section: currentSection,
+                message: 'Assessing risks...'
+              });
+            } else if (normalized.includes('RECOMMENDATIONS')) {
+              currentSection = 'Recommendations';
+              onProgress({
+                type: 'section_started',
+                section: currentSection,
+                message: 'Generating recommendations...'
+              });
+            }
+
+            onProgress({
+              type: 'content_chunk',
+              chunk,
+              section: currentSection
+            });
+          } else {
+            // Log other event types for debugging
+            console.log(`ClaudeClient.executePromptWithStreaming: Received event type: ${event.type}`);
+          }
+        }
+        console.log(`ClaudeClient.executePromptWithStreaming: Stream processing complete, received ${chunkCount} chunks, total response length: ${fullResponse.length}`);
+      } catch (error) {
+        const errorMsg = `Failed to process Claude API stream: ${error instanceof Error ? error.message : String(error)}`;
+        console.error('ClaudeClient.executePromptWithStreaming:', errorMsg, error);
+        throw new Error(errorMsg);
+      }
+
+      onProgress({ type: 'analysis_complete', message: 'Analysis complete' });
+      console.log('ClaudeClient.executePromptWithStreaming: Returning response, length:', fullResponse.length);
+      return fullResponse;
+    } catch (error) {
+      const errorMsg = `ClaudeClient.executePromptWithStreaming failed: ${error instanceof Error ? error.message : String(error)}`;
+      console.error('ClaudeClient.executePromptWithStreaming:', errorMsg, error);
+      throw error;
+    }
   }
 }
 

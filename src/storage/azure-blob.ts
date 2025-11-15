@@ -13,7 +13,7 @@ export class AzureBlobStorage {
     }
 
     this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    this.documentsContainer = this.blobServiceClient.getContainerClient('documents');
+    this.documentsContainer = this.blobServiceClient.getContainerClient('documents-texts');
     this.promptsContainer = this.blobServiceClient.getContainerClient('prompts');
   }
 
@@ -22,7 +22,7 @@ export class AzureBlobStorage {
 
     try {
       for await (const blob of this.documentsContainer.listBlobsFlat()) {
-        if (blob.name.endsWith('.pdf')) {
+        if (blob.name.toLowerCase().endsWith('.txt')) {
           documents.push({
             id: blob.name,
             filename: blob.name,
@@ -31,7 +31,7 @@ export class AzureBlobStorage {
           });
         }
       }
-      console.log(`Found ${documents.length} PDF documents in Azure Blob Storage`);
+      console.log(`Found ${documents.length} text documents in Azure Blob Storage`);
     } catch (error) {
       console.error('Failed to list documents:', error);
       throw error;
@@ -44,17 +44,13 @@ export class AzureBlobStorage {
     const blobClient = this.documentsContainer.getBlobClient(documentId);
     const downloadResponse = await blobClient.download();
     const buffer = await streamToBuffer(downloadResponse.readableStreamBody!);
-
-    const pdfModule = (await import('pdf-parse')) as any;
-    const parsePdf = pdfModule.default ?? pdfModule;
-    const pdfData = await parsePdf(buffer);
+    const textContent = buffer.toString('utf-8');
 
     return {
       id: documentId,
       filename: documentId,
-      pdf_base64: buffer.toString('base64'),
-      extracted_text: pdfData.text,
-      page_count: pdfData.numpages
+      text_content: textContent,
+      extracted_text: textContent
     };
   }
 

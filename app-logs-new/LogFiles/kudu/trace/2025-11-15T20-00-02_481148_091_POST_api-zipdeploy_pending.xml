@@ -1,0 +1,17 @@
+<step title="Incoming Request" date="2025-11-15T20:00:02.753" instance="481148" url="/api/zipdeploy?isAsync=true" method="POST" type="request" pid="831,1,35" Accept="*/*" Host="legal-mcp.scm.azurewebsites.net" User-Agent="AZURECLI/2.79.0 (HOMEBREW)" Accept-Encoding="gzip, deflate" Authorization="Bea..." Cache-Control="no-cache" Content-Type="application/octet-stream" Content-Length="27770" x-ms-client-request-id="a35230a4-c25d-11f0-b83b-9ef6fe7c72e9" x-ms-artifact-checksum="64e2003ac982b1e6093abc448835d990e15ab104454871935336e52591b54ede" X-ARR-LOG-ID="a35230a4-c25d-11f0-b83b-9ef6fe7c72e9" CLIENT-IP="24.25.210.203:64820" X-SITE-DEPLOYMENT-ID="legal-mcp" WAS-DEFAULT-HOSTNAME="legal-mcp.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/zipdeploy?isAsync=true" X-Client-IP="24.25.210.203" X-Client-Port="64820" >
+  <step title="Cleanup Xml Logs" date="2025-11-15T20:00:02.809" /><!-- duration: 67ms -->
+  <step title="ZipPushDeploy" date="2025-11-15T20:00:03.605" >
+    <step title="ZipDeploy. Extract zip." date="2025-11-15T20:00:03.702" /><!-- duration: 6ms -->
+    <step title="Starting PushDeployAsync" date="2025-11-15T20:00:03.734" /><!-- duration: 14ms -->
+    <step title="Removing node_modules symlink" date="2025-11-15T20:00:03.847" >
+      <step title="Writing artifact to /tmp/zipdeploy/ffb97fe5-7a79-48bd-ae3e-bf9209ec6489.zip" date="2025-11-15T20:00:04.306" >
+        <step title="Writing multipart request body to /tmp/zipdeploy/ffb97fe5-7a79-48bd-ae3e-bf9209ec6489.zip" date="2025-11-15T20:00:04.313" /><!-- duration: 10ms -->
+      </step><!-- duration: 251ms -->
+      <step title="Removing previous build artifact&apos;s manifest file" date="2025-11-15T20:00:04.609" >
+        <step title="Start deployment in the background" date="2025-11-15T20:00:04.653" >
+          <step title="Acquiring Deployment Lock" date="2025-11-15T20:00:04.698" /><!-- duration: 5ms -->
+          <step title="Acquired Deployment Lock" date="2025-11-15T20:00:04.796" /><!-- duration: 5ms -->
+        </step><!-- duration: 446ms -->
+      </step><!-- duration: 532ms -->
+      <step title="Outgoing response" date="2025-11-15T20:00:05.220" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 10ms -->
+    </step><!-- duration: 1389ms -->

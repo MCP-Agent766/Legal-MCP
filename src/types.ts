@@ -27,8 +27,7 @@ export interface DocumentMetadata {
 }
 
 export interface Document extends DocumentMetadata {
-  pdf_base64: string;
+  text_content: string;
   extracted_text: string;
-  page_count: number;
 }
 

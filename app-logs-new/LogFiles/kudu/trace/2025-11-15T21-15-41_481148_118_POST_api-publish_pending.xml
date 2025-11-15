@@ -1,0 +1,48 @@
+<step title="Incoming Request" date="2025-11-15T21:15:41.971" instance="481148" url="/api/publish?type=zip" method="POST" type="request" pid="831,1,3" Accept="*/*" Host="legal-mcp.scm.azurewebsites.net" User-Agent="AZURECLI/2.79.0 (HOMEBREW)" Accept-Encoding="gzip, deflate" Authorization="Bea..." Cache-Control="no-cache" Content-Type="application/octet-stream" Cookie="ARRAffinity=4811481022406343dec17cf4fd8bdf07b861b8e964e8b6c357e7bf184c92d6e0; ARRAffinitySameSite=4811481022406343dec17cf4fd8bdf07b861b8e964e8b6c357e7bf184c92d6e0" Content-Length="29137449" x-ms-client-request-id="3402aad4-c268-11f0-b1c5-9ef6fe7c72e9" x-ms-artifact-checksum="b50f1095cb361eec7f96103f7ac42e042974c26891c9caf5616a8a78aa4d9b7d" X-ARR-LOG-ID="3402aad4-c268-11f0-b1c5-9ef6fe7c72e9" CLIENT-IP="24.25.210.203:49156" X-SITE-DEPLOYMENT-ID="legal-mcp" WAS-DEFAULT-HOSTNAME="legal-mcp.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/publish?type=zip" X-Client-IP="24.25.210.203" X-Client-Port="49156" >
+  <step title="OneDeploy" date="2025-11-15T21:15:42.104" >
+    <step title="Starting PushDeployAsync" date="2025-11-15T21:15:42.157" /><!-- duration: 9ms -->
+    <step title="Removing node_modules symlink" date="2025-11-15T21:15:42.208" >
+      <step title="Writing artifact to /tmp/zipdeploy/80247cb6-92bb-4f9f-ace4-a180a6bc7734.zip" date="2025-11-15T21:15:42.337" >
+        <step title="Writing multipart request body to /tmp/zipdeploy/80247cb6-92bb-4f9f-ace4-a180a6bc7734.zip" date="2025-11-15T21:15:42.349" /><!-- duration: 10ms -->
+      </step><!-- duration: 16261ms -->
+      <step title="Attempting to fetch target branch HEAD" date="2025-11-15T21:15:58.642" /><!-- duration: 9ms -->
+      <step title="Acquiring Deployment Lock" date="2025-11-15T21:15:58.691" /><!-- duration: 19ms -->
+      <step title="Acquired Deployment Lock" date="2025-11-15T21:15:58.774" /><!-- duration: 4ms -->
+      <step title="Performing fetch based deployment" date="2025-11-15T21:15:58.866" >
+        <step title="Creating temporary deployment" date="2025-11-15T21:15:58.932" /><!-- duration: 161ms -->
+        <step title="Releasing Deployment Lock" date="2025-11-15T21:16:00.526" /><!-- duration: 928ms -->
+        <step title="Cleaning up temp folders from previous zip deployments and extracting pushed zip file /tmp/zipdeploy/80247cb6-92bb-4f9f-ace4-a180a6bc7734.zip (27.79 MB) to /tmp/zipdeploy/extracted" date="2025-11-15T21:16:02.061" >
+          <step title="ChmodRecursive Process exited with total time taken in ms: 587" date="2025-11-15T21:16:18.815" /><!-- duration: 6ms -->
+        </step><!-- duration: 16770ms -->
+        <step title="None repository commit" date="2025-11-15T21:16:18.836" >
+          <step title="Commit id: f22755d7-84d2-48c2-89e2-46fe60b98f65" date="2025-11-15T21:16:18.860" Message="OneDeploy" AuthorName="N/A" AuthorEmail="N/A" /><!-- duration: 5ms -->
+        </step><!-- duration: 36ms -->
+        <step title="Deployment timer started" date="2025-11-15T21:16:20.894" >
+          <step title="DeploymentManager.Deploy(id:f22755d7-84d2-48c2-89e2-46fe60b98f65)" date="2025-11-15T21:16:21.005" >
+            <step title="Collecting changeset information" date="2025-11-15T21:16:21.022" /><!-- duration: 139ms -->
+            <step title="Updating submodules" date="2025-11-15T21:16:21.361" /><!-- duration: 1158ms -->
+            <step title="Determining deployment builder" date="2025-11-15T21:16:22.776" >
+              <step title="Builder is OneDeployBuilder" date="2025-11-15T21:16:22.799" /><!-- duration: 4ms -->
+            </step><!-- duration: 35ms -->
+            <step title="PreDeployment: context.CleanOutputPath False" date="2025-11-15T21:16:22.881" >
+              <step title="PreDeployment: context.OutputPath /home/site/wwwroot" date="2025-11-15T21:16:23.022" >
+                <step title="Building" date="2025-11-15T21:16:23.177" >
+                  <step title="Executing external process" date="2025-11-15T21:16:26.217" type="process" path="starter.sh" arguments="/opt/Kudu/Scripts/absoluteTar.sh /tmp/zipdeploy/extracted/node_modules /tmp/zipdeploy/extracted/node_modules.tar.gz" /><!-- duration: 6376ms -->
+                  <step title="Executing external process" date="2025-11-15T21:16:33.079" type="process" path="starter.sh" arguments="/opt/Kudu/Scripts/parallel_rsync.sh /tmp/zipdeploy/extracted /home/site/wwwroot 8 /tmp/ False False node_modules " /><!-- duration: 4695ms -->
+                  <step title="Modified file to trigger a restart of the app container." date="2025-11-15T21:16:40.157" /><!-- duration: 5ms -->
+                  <step title="Skip function trigger and logicapp sync because function is not enabled." date="2025-11-15T21:16:40.171" /><!-- duration: 9ms -->
+                  <step title="Purge deployment items" date="2025-11-15T21:16:41.427" >
+                    <step title="Remove 407d1db0-, Success, received at 11/15/2025 17:49:13" date="2025-11-15T21:16:41.514" /><!-- duration: 5ms -->
+                  </step><!-- duration: 97ms -->
+                </step><!-- duration: 18417ms -->
+              </step><!-- duration: 18579ms -->
+              <step title="Cleaning up temp files" date="2025-11-15T21:16:41.610" /><!-- duration: 5ms -->
+              <step title="Cleaning up temp files" date="2025-11-15T21:16:41.622" /><!-- duration: 517ms -->
+              <step title="Reloading status file with latest updates" date="2025-11-15T21:16:42.184" >
+                <step title="WebHooksManager.PublishEventAsync: PostDeployment" date="2025-11-15T21:16:42.190" /><!-- duration: 137ms -->
+              </step><!-- duration: 148ms -->
+              <step title="Cleaning up temporary deployment - fetch deployment was successful" date="2025-11-15T21:16:42.342" /><!-- duration: 5ms -->
+            </step><!-- duration: 19556ms -->
+          </step><!-- duration: 21445ms -->
+          <step title="Outgoing response" date="2025-11-15T21:16:42.465" type="response" statusCode="200" statusText="OK" /><!-- duration: 7ms -->
+        </step><!-- duration: 21587ms -->

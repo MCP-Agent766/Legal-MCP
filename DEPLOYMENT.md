@@ -14,10 +14,10 @@
 
 ### 1. Storage Account Setup
 - [ ] Create storage account `legalmcpstore` in Canada Central
-- [ ] Create `documents` container (Private access)
+- [ ] Create `documents-texts` container (Private access)
 - [ ] Create `prompts` container (Private access)
 - [ ] Upload `prompts/library.json` to prompts container
-- [ ] Upload at least one test PDF to documents container
+- [ ] Upload at least one test `.txt` document to documents-texts container
 - [ ] Get connection string for App Service configuration
 
 ### 2. Code Preparation
@@ -54,7 +54,7 @@ STORAGE_KEY=$(az storage account keys list \
 
 # Create containers
 az storage container create \
-  --name documents \
+  --name documents-texts \
   --account-name legalmcpstore \
   --account-key $STORAGE_KEY
 
@@ -78,6 +78,14 @@ az storage blob upload \
   --container-name prompts \
   --name "library.json" \
   --file ./prompts/library.json \
+  --connection-string "$CONN_STRING"
+
+# Upload `.txt` documents to the documents-texts container
+az storage blob upload \
+  --account-name legalmcpstore \
+  --container-name documents-texts \
+  --name "your-document.txt" \
+  --file ./path/to/your-document.txt \
   --connection-string "$CONN_STRING"
 ```
 

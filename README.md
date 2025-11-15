@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) compliant server for legal document analysis usin
 
 ## Features
 
-- **Document Management**: List and retrieve pre-loaded PDF documents from Azure Blob Storage
+- **Document Management**: List and retrieve pre-loaded `.txt` documents from Azure Blob Storage
 - **Prompt Library**: Manage curated prompts for legal document analysis
 - **Streaming Analysis**: Execute document analysis with real-time progress updates via MCP progress notifications
 - **MCP SSE Transport**: Full compliance with MCP specification using Server-Sent Events
@@ -13,7 +13,7 @@ A Model Context Protocol (MCP) compliant server for legal document analysis usin
 
 - Node.js 18+ 
 - Azure Storage Account with:
-  - `documents` container (for PDF files)
+  - `documents-texts` container (for `.txt` documents)
   - `prompts` container (for prompt library JSON)
 - Anthropic Claude API key with credits
 
@@ -45,12 +45,12 @@ A Model Context Protocol (MCP) compliant server for legal document analysis usin
 
 4. **Upload documents to Azure:**
    ```bash
-   # Upload PDF files to the documents container
+   # Upload `.txt` files to the documents-texts container
    az storage blob upload \
      --account-name legalmcpstore \
-     --container-name documents \
-     --name "your-document.pdf" \
-     --file ./path/to/your-document.pdf \
+     --container-name documents-texts \
+     --name "your-document.txt" \
+     --file ./path/to/your-document.txt \
      --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
    ```
 
@@ -103,7 +103,7 @@ You can test the server using the MCP Inspector or any MCP-compatible client:
 
 ## Available Tools
 
-1. **list_documents**: Returns all available PDF documents
+1. **list_documents**: Returns all available `.txt` documents
 2. **list_prompts**: Lists available analysis prompts (with optional search)
 3. **get_prompt**: Retrieves full prompt details by ID
 4. **add_prompt**: Adds a new user-contributed prompt
