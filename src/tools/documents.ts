@@ -40,7 +40,10 @@ export const registerDocumentTool = (server: McpServer, storage: AzureBlobStorag
         }));
 
         return {
-          content: [],
+          content: [{
+            type: 'text',
+            text: JSON.stringify({ documents: payload }, null, 2)
+          }],
           structuredContent: {
             documents: payload
           }

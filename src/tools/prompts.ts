@@ -51,7 +51,10 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
         const prompts = await promptStore.list(search);
         console.log(`list_prompts tool called (search: ${search || 'none'}), returning ${prompts.length} prompts`);
         return {
-          content: [],
+          content: [{
+            type: 'text',
+            text: JSON.stringify({ prompts }, null, 2)
+          }],
           structuredContent: { prompts }
         };
       } catch (error) {
@@ -78,16 +81,39 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
       outputSchema: GetPromptResultSchema
     },
     async ({ prompt_id }) => {
-      const prompt = await promptStore.get(prompt_id);
-      if (!prompt) {
-        throw new Error(`Prompt ${prompt_id} not found`);
-      }
-      return {
-        content: [],
-        structuredContent: {
-          prompt
+      try {
+        console.log(`get_prompt tool called with prompt_id: ${prompt_id}`);
+        const prompt = await promptStore.get(prompt_id);
+        console.log(`get_prompt result: ${prompt ? 'found' : 'not found'}`);
+        if (!prompt) {
+          return {
+            content: [{
+              type: 'text',
+              text: `Prompt "${prompt_id}" not found. Available prompt IDs can be retrieved using list_prompts.`
+            }],
+            isError: true
+          };
         }
-      };
+        console.log(`get_prompt returning prompt: ${prompt.id} - ${prompt.title}`);
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({ prompt }, null, 2)
+          }],
+          structuredContent: {
+            prompt
+          }
+        };
+      } catch (error) {
+        console.error('Error in get_prompt tool:', error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error retrieving prompt: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 

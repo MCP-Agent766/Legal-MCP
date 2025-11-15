@@ -11,11 +11,18 @@ export class PromptStore {
 
   async load(): Promise<void> {
     try {
+      console.log('PromptStore.load: Starting to load prompts from Azure Blob Storage...');
       const library = await this.storage.getPromptLibrary();
+      console.log('PromptStore.load: Retrieved library from Azure, checking prompts array...');
       this.prompts = Array.isArray(library.prompts) ? library.prompts as PromptDefinition[] : [];
-      console.log(`Loaded ${this.prompts.length} prompts from Azure Blob Storage`);
+      console.log(`PromptStore.load: Loaded ${this.prompts.length} prompts from Azure Blob Storage`);
+      if (this.prompts.length > 0) {
+        console.log(`PromptStore.load: Prompt IDs: ${this.prompts.map(p => p.id).join(', ')}`);
+      } else {
+        console.warn('PromptStore.load: WARNING - No prompts loaded! Library structure:', JSON.stringify(library, null, 2));
+      }
     } catch (error) {
-      console.error('Failed to load prompt library:', error);
+      console.error('PromptStore.load: Failed to load prompt library:', error);
       this.prompts = [];
       throw error;
     }
@@ -44,7 +51,12 @@ export class PromptStore {
   }
 
   async get(promptId: string): Promise<PromptDefinition | undefined> {
-    return this.prompts.find((prompt) => prompt.id === promptId);
+    console.log(`PromptStore.get called with promptId: ${promptId}`);
+    console.log(`PromptStore has ${this.prompts.length} prompts loaded`);
+    console.log(`Available prompt IDs: ${this.prompts.map(p => p.id).join(', ')}`);
+    const prompt = this.prompts.find((prompt) => prompt.id === promptId);
+    console.log(`PromptStore.get result: ${prompt ? `found (${prompt.title})` : 'not found'}`);
+    return prompt;
   }
 
   async add(title: string, promptText: string, category: string): Promise<PromptDefinition> {
