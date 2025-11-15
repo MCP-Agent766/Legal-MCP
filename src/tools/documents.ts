@@ -23,19 +23,49 @@ export const registerDocumentTool = (server: McpServer, storage: AzureBlobStorag
       inputSchema: z.object({}),
       outputSchema: ListDocumentsResultSchema
     },
-    async () => {
-      const documents = await storage.listDocuments();
-      const payload = documents.map((doc: DocumentMetadata) => ({
-        ...doc,
-        last_modified: doc.last_modified ? doc.last_modified.toISOString() : undefined
-      }));
+    async (_args = {}) => {
+      try {
+        const documents = await storage.listDocuments();
+        console.log(`list_documents tool called, returning ${documents.length} documents`);
+        
+        const payload = documents.map((doc: DocumentMetadata) => ({
+          ...doc,
+          last_modified: doc.last_modified ? doc.last_modified.toISOString() : undefined
+        }));
 
-      return {
-        content: [],
-        structuredContent: {
-          documents: payload
-        }
-      };
+        // Format documents for display
+        const documentsText = documents.length === 0
+          ? 'No documents found in storage'
+          : documents.map((doc, index) => {
+              const size = doc.size_bytes 
+                ? `${(doc.size_bytes / 1024).toFixed(2)} KB` 
+                : 'unknown size';
+              const modified = doc.last_modified 
+                ? new Date(doc.last_modified).toLocaleString() 
+                : 'unknown date';
+              return `${index + 1}. ${doc.filename} (${size}, modified: ${modified})`;
+            }).join('\n');
+
+        return {
+          content: [{
+            type: 'text',
+            text: `Found ${documents.length} document(s):\n\n${documentsText}`
+          }],
+          structuredContent: {
+            documents: payload
+          }
+        };
+      } catch (error) {
+        console.error('Error in list_documents tool:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error listing documents: ${errorMessage}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 };

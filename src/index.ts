@@ -73,26 +73,44 @@ const startServer = async () => {
 
   const handleMcpPost = async (req: express.Request, res: express.Response) => {
     try {
+      console.log('=== MCP POST Request ===');
+      console.log('URL:', req.url);
+      console.log('Headers:', {
+        'mcp-session-id': req.headers['mcp-session-id'],
+        'content-type': req.headers['content-type'],
+        'user-agent': req.headers['user-agent'],
+        'origin': req.headers['origin']
+      });
+      if (req.body && Object.keys(req.body).length > 0) {
+        console.log('Body method:', req.body.method);
+        console.log('Body params:', JSON.stringify(req.body.params, null, 2));
+      }
+      
       const sessionId = Array.isArray(req.headers['mcp-session-id'])
         ? req.headers['mcp-session-id'][0]
         : req.headers['mcp-session-id'];
+      
       if (sessionId && sessions.has(sessionId)) {
+        console.log(`Using existing session: ${sessionId}`);
         await sessions.get(sessionId)!.transport.handleRequest(req, res, req.body);
         return;
       }
 
       if (isInitializeRequest(req.body)) {
+        console.log('Initializing new MCP session');
         const server = createServer();
         const transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => randomUUID(),
           enableDnsRebindingProtection: false,
           onsessioninitialized: (id) => {
             if (id) {
+              console.log(`Session initialized: ${id}`);
               sessions.set(id, { server, transport });
             }
           },
           onsessionclosed: async (id) => {
             if (id) {
+              console.log(`Session closed: ${id}`);
               await cleanupSession(id);
             }
           }
@@ -128,28 +146,39 @@ const startServer = async () => {
   };
 
   const handleMcpGet = async (req: express.Request, res: express.Response) => {
+    console.log('=== MCP GET Request ===');
     const sessionId = Array.isArray(req.headers['mcp-session-id'])
       ? req.headers['mcp-session-id'][0]
       : req.headers['mcp-session-id'];
 
+    console.log('Session ID:', sessionId);
+    console.log('Active sessions:', Array.from(sessions.keys()));
+
     if (!sessionId || !sessions.has(sessionId)) {
+      console.log('Missing or unknown session ID');
       res.status(400).send('Missing or unknown Mcp-Session-Id');
       return;
     }
 
+    console.log(`Handling GET request for session: ${sessionId}`);
     await sessions.get(sessionId)!.transport.handleRequest(req, res);
   };
 
   const handleMcpDelete = async (req: express.Request, res: express.Response) => {
+    console.log('=== MCP DELETE Request ===');
     const sessionId = Array.isArray(req.headers['mcp-session-id'])
       ? req.headers['mcp-session-id'][0]
       : req.headers['mcp-session-id'];
 
+    console.log('Session ID:', sessionId);
+
     if (!sessionId || !sessions.has(sessionId)) {
+      console.log('Missing or unknown session ID');
       res.status(400).send('Missing or unknown Mcp-Session-Id');
       return;
     }
 
+    console.log(`Handling DELETE request for session: ${sessionId}`);
     await sessions.get(sessionId)!.transport.handleRequest(req, res);
   };
 

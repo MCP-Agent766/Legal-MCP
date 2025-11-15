@@ -38,12 +38,35 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
       }),
       outputSchema: ListPromptsResultSchema
     },
-    async ({ search }) => {
-      const prompts = await promptStore.list(search);
-      return {
-        content: [],
-        structuredContent: { prompts }
-      };
+    async (args: { search?: string } = {}) => {
+      try {
+        const search = args?.search;
+        const prompts = await promptStore.list(search);
+        console.log(`list_prompts tool called (search: ${search || 'none'}), returning ${prompts.length} prompts`);
+        
+        // Format prompts for display
+        const promptsText = prompts.length === 0
+          ? 'No prompts found' + (search ? ` matching "${search}"` : '')
+          : prompts.map(p => `- ${p.title} (${p.category}): ${p.description}`).join('\n');
+        
+        return {
+          content: [{
+            type: 'text',
+            text: `Found ${prompts.length} prompt(s):\n\n${promptsText}`
+          }],
+          structuredContent: { prompts }
+        };
+      } catch (error) {
+        console.error('Error in list_prompts tool:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error listing prompts: ${errorMessage}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 
@@ -58,16 +81,42 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
       outputSchema: GetPromptResultSchema
     },
     async ({ prompt_id }) => {
-      const prompt = await promptStore.get(prompt_id);
-      if (!prompt) {
-        throw new Error(`Prompt ${prompt_id} not found`);
-      }
-      return {
-        content: [],
-        structuredContent: {
-          prompt
+      try {
+        const prompt = await promptStore.get(prompt_id);
+        if (!prompt) {
+          throw new Error(`Prompt ${prompt_id} not found`);
         }
-      };
+        
+        console.log(`get_prompt tool called for prompt_id: ${prompt_id}`);
+        
+        // Format prompt for display
+        const promptText = `Prompt: ${prompt.title}\n` +
+          `Category: ${prompt.category}\n` +
+          `Description: ${prompt.description}\n` +
+          `Created by: ${prompt.created_by}\n` +
+          `Created at: ${prompt.created_at}\n\n` +
+          `Prompt Text:\n${prompt.prompt_text}`;
+        
+        return {
+          content: [{
+            type: 'text',
+            text: promptText
+          }],
+          structuredContent: {
+            prompt
+          }
+        };
+      } catch (error) {
+        console.error('Error in get_prompt tool:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error retrieving prompt: ${errorMessage}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 
@@ -84,14 +133,40 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
       outputSchema: AddPromptResultSchema
     },
     async ({ title, category, prompt_text }, extra) => {
-      const newPrompt = await promptStore.add(title, prompt_text, category);
-      await server.sendPromptListChanged();
-      return {
-        content: [],
-        structuredContent: {
-          prompt: newPrompt
-        }
-      };
+      try {
+        const newPrompt = await promptStore.add(title, prompt_text, category);
+        await server.sendPromptListChanged();
+        
+        console.log(`add_prompt tool called, created prompt: ${newPrompt.id}`);
+        
+        // Format new prompt for display
+        const promptText = `Successfully added new prompt:\n\n` +
+          `ID: ${newPrompt.id}\n` +
+          `Title: ${newPrompt.title}\n` +
+          `Category: ${newPrompt.category}\n` +
+          `Description: ${newPrompt.description}\n` +
+          `Created at: ${newPrompt.created_at}`;
+        
+        return {
+          content: [{
+            type: 'text',
+            text: promptText
+          }],
+          structuredContent: {
+            prompt: newPrompt
+          }
+        };
+      } catch (error) {
+        console.error('Error in add_prompt tool:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error adding prompt: ${errorMessage}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 };

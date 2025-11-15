@@ -31,65 +31,89 @@ export const registerExecuteTool = (
       outputSchema: ExecuteResultSchema
     },
     async (args, extra) => {
-      const prompt = await promptStore.get(args.prompt_id);
-      if (!prompt) {
-        throw new Error(`Prompt ${args.prompt_id} not found`);
-      }
-
-      const document = await storage.getDocument(args.document_id);
-      const progressToken = extra._meta?.progressToken;
-      let progressValue = 0;
-
-      const emitProgress = (message: string) => {
-        if (!progressToken) {
-          return;
+      try {
+        const prompt = await promptStore.get(args.prompt_id);
+        if (!prompt) {
+          throw new Error(`Prompt ${args.prompt_id} not found`);
         }
-        progressValue += 1;
-        extra
-          .sendNotification({
-            method: 'notifications/progress',
-            params: {
-              progress: progressValue,
-              message,
-              progressToken
+
+        const document = await storage.getDocument(args.document_id);
+        const progressToken = extra._meta?.progressToken;
+        let progressValue = 0;
+
+        const emitProgress = (message: string) => {
+          if (!progressToken) {
+            return;
+          }
+          progressValue += 1;
+          extra
+            .sendNotification({
+              method: 'notifications/progress',
+              params: {
+                progress: progressValue,
+                message,
+                progressToken
+              }
+            })
+            .catch((error) => {
+              console.error('Progress notification error', error);
+            });
+        };
+
+        console.log(`execute_analysis tool called for prompt: ${prompt.title}, document: ${document.filename}`);
+
+        const analysis = await claudeClient.executePromptWithStreaming(
+          prompt.prompt_text,
+          document.pdf_base64,
+          (event: StreamEvent) => {
+            if (event.type === 'analysis_started') {
+              emitProgress(event.message ?? 'Analysis started');
+              return;
             }
-          })
-          .catch((error) => {
-            console.error('Progress notification error', error);
-          });
-      };
+            if (event.type === 'section_started') {
+              emitProgress(event.message ?? `${event.section} started`);
+              return;
+            }
+            if (event.type === 'content_chunk') {
+              const chunkSummary = event.chunk?.slice(0, 120).trim();
+              emitProgress(`Chunk ${event.section ?? 'unknown'}: ${chunkSummary}`);
+              return;
+            }
+            if (event.type === 'analysis_complete') {
+              emitProgress(event.message ?? 'Analysis complete');
+            }
+          }
+        );
 
-      const analysis = await claudeClient.executePromptWithStreaming(
-        prompt.prompt_text,
-        document.pdf_base64,
-        (event: StreamEvent) => {
-          if (event.type === 'analysis_started') {
-            emitProgress(event.message ?? 'Analysis started');
-            return;
-          }
-          if (event.type === 'section_started') {
-            emitProgress(event.message ?? `${event.section} started`);
-            return;
-          }
-          if (event.type === 'content_chunk') {
-            const chunkSummary = event.chunk?.slice(0, 120).trim();
-            emitProgress(`Chunk ${event.section ?? 'unknown'}: ${chunkSummary}`);
-            return;
-          }
-          if (event.type === 'analysis_complete') {
-            emitProgress(event.message ?? 'Analysis complete');
-          }
-        }
-      );
+        // Format analysis result for display
+        const resultText = `Analysis Complete\n\n` +
+          `Prompt: ${prompt.title}\n` +
+          `Document: ${document.filename}\n` +
+          `Pages: ${document.page_count}\n\n` +
+          `Analysis Results:\n${analysis}`;
 
-      return {
-        content: [],
-        structuredContent: {
-          prompt_title: prompt.title,
-          document_filename: document.filename,
-          analysis
-        }
-      };
+        return {
+          content: [{
+            type: 'text',
+            text: resultText
+          }],
+          structuredContent: {
+            prompt_title: prompt.title,
+            document_filename: document.filename,
+            analysis
+          }
+        };
+      } catch (error) {
+        console.error('Error in execute_analysis tool:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error executing analysis: ${errorMessage}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 };
