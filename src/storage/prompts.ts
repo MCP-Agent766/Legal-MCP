@@ -10,8 +10,15 @@ export class PromptStore {
   }
 
   async load(): Promise<void> {
-    const library = await this.storage.getPromptLibrary();
-    this.prompts = Array.isArray(library.prompts) ? library.prompts as PromptDefinition[] : [];
+    try {
+      const library = await this.storage.getPromptLibrary();
+      this.prompts = Array.isArray(library.prompts) ? library.prompts as PromptDefinition[] : [];
+      console.log(`Loaded ${this.prompts.length} prompts from Azure Blob Storage`);
+    } catch (error) {
+      console.error('Failed to load prompt library:', error);
+      this.prompts = [];
+      throw error;
+    }
   }
 
   async list(searchQuery?: string): Promise<PromptSummary[]> {

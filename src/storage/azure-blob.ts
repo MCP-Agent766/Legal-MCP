@@ -20,15 +20,21 @@ export class AzureBlobStorage {
   async listDocuments(): Promise<DocumentMetadata[]> {
     const documents: DocumentMetadata[] = [];
 
-    for await (const blob of this.documentsContainer.listBlobsFlat()) {
-      if (blob.name.endsWith('.pdf')) {
-        documents.push({
-          id: blob.name,
-          filename: blob.name,
-          size_bytes: blob.properties.contentLength ?? undefined,
-          last_modified: blob.properties.lastModified ?? undefined
-        });
+    try {
+      for await (const blob of this.documentsContainer.listBlobsFlat()) {
+        if (blob.name.endsWith('.pdf')) {
+          documents.push({
+            id: blob.name,
+            filename: blob.name,
+            size_bytes: blob.properties.contentLength ?? undefined,
+            last_modified: blob.properties.lastModified ?? undefined
+          });
+        }
       }
+      console.log(`Found ${documents.length} PDF documents in Azure Blob Storage`);
+    } catch (error) {
+      console.error('Failed to list documents:', error);
+      throw error;
     }
 
     return documents;

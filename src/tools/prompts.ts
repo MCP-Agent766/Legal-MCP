@@ -38,12 +38,32 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
       }),
       outputSchema: ListPromptsResultSchema
     },
-    async ({ search }) => {
-      const prompts = await promptStore.list(search);
-      return {
-        content: [],
-        structuredContent: { prompts }
-      };
+    async (args: { search?: string } = {}) => {
+      // Test logging to see what args are being passed
+      console.log('list_prompts - args type:', typeof args);
+      console.log('list_prompts - args value:', JSON.stringify(args));
+      console.log('list_prompts - args === undefined:', args === undefined);
+      console.log('list_prompts - args === null:', args === null);
+      console.log('list_prompts - args === {}:', JSON.stringify(args) === '{}');
+      
+      try {
+        const search = args?.search;
+        const prompts = await promptStore.list(search);
+        console.log(`list_prompts tool called (search: ${search || 'none'}), returning ${prompts.length} prompts`);
+        return {
+          content: [],
+          structuredContent: { prompts }
+        };
+      } catch (error) {
+        console.error('Error in list_prompts tool:', error);
+        return {
+          content: [{
+            type: 'text',
+            text: `Error listing prompts: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          isError: true
+        };
+      }
     }
   );
 
