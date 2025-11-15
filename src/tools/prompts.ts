@@ -44,15 +44,19 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
         const prompts = await promptStore.list(search);
         console.log(`list_prompts tool called (search: ${search || 'none'}), returning ${prompts.length} prompts`);
         
-        // Format prompts for display
+        // Format prompts for display - include IDs prominently
         const promptsText = prompts.length === 0
           ? 'No prompts found' + (search ? ` matching "${search}"` : '')
-          : prompts.map(p => `- ${p.title} (${p.category}): ${p.description}`).join('\n');
+          : prompts.map(p => `ID: ${p.id} | ${p.title} (${p.category}): ${p.description}`).join('\n');
+        
+        const usageHint = prompts.length > 0 
+          ? `\n\nTo get full details, use get_prompt with prompt_id="${prompts[0].id}"\nTo execute analysis, use execute_analysis with prompt_id and document_id from list_documents.`
+          : '';
         
         return {
           content: [{
             type: 'text',
-            text: `Found ${prompts.length} prompt(s):\n\n${promptsText}`
+            text: `Found ${prompts.length} prompt(s):\n\n${promptsText}${usageHint}`
           }],
           structuredContent: { prompts }
         };
@@ -74,9 +78,9 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
     'get_prompt',
     {
       title: 'Get Prompt',
-      description: 'Retrieve full prompt details',
+      description: 'Retrieve full prompt details by ID. Use the prompt_id from list_prompts output (the ID appears as "ID: prompt_xxx" in the list).',
       inputSchema: z.object({
-        prompt_id: z.string()
+        prompt_id: z.string().describe('The prompt ID from list_prompts output (e.g., "prompt_12345")')
       }),
       outputSchema: GetPromptResultSchema
     },

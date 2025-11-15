@@ -33,7 +33,7 @@ export const registerDocumentTool = (server: McpServer, storage: AzureBlobStorag
           last_modified: doc.last_modified ? doc.last_modified.toISOString() : undefined
         }));
 
-        // Format documents for display
+        // Format documents for display - include IDs prominently
         const documentsText = documents.length === 0
           ? 'No documents found in storage'
           : documents.map((doc, index) => {
@@ -43,13 +43,17 @@ export const registerDocumentTool = (server: McpServer, storage: AzureBlobStorag
               const modified = doc.last_modified 
                 ? new Date(doc.last_modified).toLocaleString() 
                 : 'unknown date';
-              return `${index + 1}. ${doc.filename} (${size}, modified: ${modified})`;
+              return `${index + 1}. ID: ${doc.id} | ${doc.filename} (${size}, modified: ${modified})`;
             }).join('\n');
+
+        const usageHint = documents.length > 0
+          ? `\n\nTo execute analysis, use execute_analysis with document_id="${documents[0].id}" and a prompt_id from list_prompts.`
+          : '';
 
         return {
           content: [{
             type: 'text',
-            text: `Found ${documents.length} document(s):\n\n${documentsText}`
+            text: `Found ${documents.length} document(s):\n\n${documentsText}${usageHint}`
           }],
           structuredContent: {
             documents: payload

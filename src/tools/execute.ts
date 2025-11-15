@@ -26,7 +26,7 @@ export const registerExecuteTool = (
     'execute_analysis',
     {
       title: 'Execute Analysis',
-      description: 'Analyze a document with a selected prompt and stream the results',
+      description: 'Analyze a document with a selected prompt and stream the results. Requires both prompt_id (from list_prompts) and document_id (from list_documents).',
       inputSchema: ExecuteInputSchema,
       outputSchema: ExecuteResultSchema
     },
