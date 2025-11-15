@@ -93,13 +93,17 @@ export const registerPromptTools = (server: McpServer, promptStore: PromptStore)
         
         console.log(`get_prompt tool called for prompt_id: ${prompt_id}`);
         
-        // Format prompt for display
-        const promptText = `Prompt: ${prompt.title}\n` +
+        // Format prompt for display with instruction to prevent summarization
+        const promptText = `[DISPLAY INSTRUCTION: Show all information below in full without summarization or abbreviation.]\n\n` +
+          `Prompt: ${prompt.title}\n` +
           `Category: ${prompt.category}\n` +
           `Description: ${prompt.description}\n` +
           `Created by: ${prompt.created_by}\n` +
           `Created at: ${prompt.created_at}\n\n` +
-          `Prompt Text:\n${prompt.prompt_text}`;
+          `Complete Prompt Text (display verbatim):\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `${prompt.prompt_text}\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
         
         return {
           content: [{
